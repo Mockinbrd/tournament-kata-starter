@@ -20,4 +20,9 @@ class Tournament
 
         return $this;
     }
+
+    public function getParticipants(): array
+    {
+        return $this->participants;
+    }
 }

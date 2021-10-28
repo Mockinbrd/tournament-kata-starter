@@ -20,22 +20,36 @@ class ParticipantController extends AbstractController
     }
 
     /**
-     * @Route("/api/tournaments/{tournamentId}/participants", name="create_participant", methods={"POST"})
+     * @Route("/api/tournaments/{tournamentId}/participants", name="create_tournament_participant", methods={"GET"})
+     */
+    public function getParticipantsOfTournament(string $tournamentId): Response
+    {
+        $tournament = $this->tournamentService->getTournament($tournamentId);
+
+        if (null == $tournament) {
+            throw $this->createNotFoundException("Le tournoi n'existe pas");
+        }
+
+        return $this->json([$tournament->getParticipants()]);
+    }
+
+    /**
+     * @Route("/api/tournaments/{tournamentId}/participants", name="create_tournament_participant", methods={"POST"})
      */
     public function createTournamentParticipant(string $tournamentId, Request $request): Response
     {
         $tournament = $this->tournamentService->getTournament($tournamentId);
 
         if (null == $tournament) {
-            throw $this->createNotFoundException();
+            throw $this->createNotFoundException("Le tournoi n'existe pas");
         }
 
         $parametersAsArray = json_decode($request->getContent(), true);
 
-        if(!isset($parametersAsArray['name']))
+        if(!isset($parametersAsArray['name']) || (isset($parametersAsArray['elo']) && !is_integer($parametersAsArray['elo'])))
         {
             return $this->json([
-                "message" => "Le paramètre 'name' est requis"
+                "message" => "Le nom 'name' (chaine de caractères non vide) ou l'elo (nombre entier) sont incorrects"
             ], Response::HTTP_BAD_REQUEST);
         }
 

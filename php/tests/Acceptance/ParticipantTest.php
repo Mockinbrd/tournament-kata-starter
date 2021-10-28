@@ -13,9 +13,9 @@ class ParticipantTest extends ApiTestCase
 {
     public TournamentTestService $tournamentService;
 
-    public function __construct()
+    public function setUp(): void
     {
-        parent::__construct();
+        parent::setUp();
         $this->tournamentService = new TournamentTestService();
     }
 
@@ -75,5 +75,10 @@ class ParticipantTest extends ApiTestCase
 
 
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+    }
+
+    public function testListParticipantOfTournament(): void
+    {
+        
     }
 }
