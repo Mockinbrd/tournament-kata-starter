@@ -20,7 +20,7 @@ class ParticipantController extends AbstractController
     }
 
     /**
-     * @Route("/api/tournaments/{tournamentId}/participants", name="create_tournament_participant", methods={"GET"})
+     * @Route("/api/tournaments/{tournamentId}/participants", name="get_tournament_particpants", methods={"GET"})
      */
     public function getParticipantsOfTournament(string $tournamentId): Response
     {
@@ -30,7 +30,7 @@ class ParticipantController extends AbstractController
             throw $this->createNotFoundException("Le tournoi n'existe pas");
         }
 
-        return $this->json([$tournament->getParticipants()]);
+        return $this->json($tournament->getParticipants());
     }
 
     /**

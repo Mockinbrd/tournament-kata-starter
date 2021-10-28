@@ -13,10 +13,17 @@ class ParticipantTest extends ApiTestCase
 {
     public TournamentTestService $tournamentService;
 
+    public const PARTICIPANT_NAME = 'Novak Djokovic';
+    public const PARTICIPANT_ELO = 2500;
+
     public function setUp(): void
     {
         parent::setUp();
         $this->tournamentService = new TournamentTestService();
+        $this->participant = [
+            'name' => self::PARTICIPANT_NAME,
+            'elo' => self::PARTICIPANT_ELO
+        ];
     }
 
     public function testParticipantCreation(): void
@@ -28,10 +35,7 @@ class ParticipantTest extends ApiTestCase
                 'Content-Type: application/json',
                 'Accept: application/json',
             ],
-            'body' => json_encode([
-                'name' => 'Novak Djokovic',
-                'elo' => 2500
-            ])
+            'body' => json_encode($this->participant)
         ]);
         $this->assertResponseIsSuccessful();
         $response = $client->getResponse()->toArray();
@@ -48,10 +52,7 @@ class ParticipantTest extends ApiTestCase
                 'Content-Type: application/json',
                 'Accept: application/json',
             ],
-            'body' => json_encode([
-                'name' => 'Novak Djokovic',
-                'elo' => 2500
-            ])
+            'body' => json_encode($this->participant)
         ]);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
@@ -68,8 +69,8 @@ class ParticipantTest extends ApiTestCase
                 'Accept: application/json',
             ],
             'body' => json_encode([
-                'prenom' => 'Novak Djokovic',
-                'elo' => 2500
+                'prenom' => 'Test',
+                'elo' => 'hihi'
             ])
         ]);
 
@@ -79,6 +80,39 @@ class ParticipantTest extends ApiTestCase
 
     public function testListParticipantOfTournament(): void
     {
-        
+        $client = static::createClient();
+        $tournamentId = $this->tournamentService->createTournament($client);
+
+        $client->request('POST', '/api/tournaments/'. $tournamentId .'/participants', [
+            'headers' => [
+                'Content-Type: application/json',
+                'Accept: application/json',
+            ],
+            'body' => json_encode($this->participant)
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $participant = $client->getResponse()->toArray();
+
+        $client->request('GET', '/api/tournaments/'. $tournamentId .'/participants', [
+            'headers' => [
+                'Content-Type: application/json',
+                'Accept: application/json',
+            ]
+        ]);
+    
+        $this->assertResponseIsSuccessful();
+        $response = $client->getResponse()->toArray();
+
+        $this->assertEquals(
+        [
+            [
+                'id' => $participant['id'],
+                'name' => self::PARTICIPANT_NAME,
+                'elo' => self::PARTICIPANT_ELO
+            ]
+        ], 
+        $response
+    );
     }
 }
