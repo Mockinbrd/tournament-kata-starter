@@ -29,12 +29,8 @@ class ParticipantController extends AbstractController
      */
     public function deleteParticipant(string $tournamentId, string $participantId): Response
     {
-        try {
-            $tournament = $this->tournamentService->getTournament($tournamentId);
-            $participant = $this->participantService->getParticipant($tournament, $participantId);
-        } catch (Exception $e) {
-            throw $e;
-        }
+        $tournament = $this->tournamentService->getTournament($tournamentId);
+        $participant = $this->participantService->getParticipant($tournament, $participantId);
 
         $this->participantService->deleteParticipant($tournament, $participant->id);
 
@@ -46,11 +42,7 @@ class ParticipantController extends AbstractController
      */
     public function getParticipantsOfTournament(string $tournamentId): Response
     {
-        try {
-            $tournament = $this->tournamentService->getTournament($tournamentId);
-        } catch (Exception $e) {
-            throw $e;
-        }
+        $tournament = $this->tournamentService->getTournament($tournamentId);
 
         return $this->json($tournament->getParticipants());
     }
@@ -64,7 +56,7 @@ class ParticipantController extends AbstractController
         $parametersAsArray = json_decode($request->getContent(), true);
 
         $this->participantValidator->validate($parametersAsArray);
-        
+
         $uuid = Uuid::v4();
 
         $participant = new Participant($uuid, $parametersAsArray['name'], $parametersAsArray['elo']);
