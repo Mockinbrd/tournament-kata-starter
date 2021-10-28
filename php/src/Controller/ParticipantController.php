@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Model\Participant;
+use App\Services\ParticipantService;
 use Symfony\Component\Uid\Uuid;
 use App\Services\TournamentService;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,8 +16,31 @@ class ParticipantController extends AbstractController
 {
     public function __construct(
         private TournamentService $tournamentService,
-        private ParticipantTournamentService $participantTournamentService
+        private ParticipantTournamentService $participantTournamentService,
+        private ParticipantService $participantService
     ) {
+    }
+
+    /**
+     * @Route("/api/tournaments/{tournamentId}/participants/{participantId}", name="delete_tournament_participant", methods={"DELETE"})
+     */
+    public function deleteParticipant(string $tournamentId, string $participantId): Response
+    {
+        $tournament = $this->tournamentService->getTournament($tournamentId);
+
+        if (null == $tournament) {
+            throw $this->createNotFoundException("Le tournoi n'existe pas");
+        }
+
+        $participant = $this->participantService->getParticipant($tournament, $participantId);
+
+        if (null == $participant) {
+            throw $this->createNotFoundException("Le participant n'existe pas");
+        }
+
+        $this->participantService->deleteParticipant($tournament, $participant->id);
+
+        return $this->json(null, Response::HTTP_NO_CONTENT);
     }
 
     /**

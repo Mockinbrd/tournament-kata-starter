@@ -15,8 +15,36 @@ class ParticipantService
         $this->session = $requestStack->getSession();
     }
 
-    public function getParticipant(string $id): ?Tournament
+    public function getParticipant(Tournament $tournament, string $participantId): ?Participant
     {
-        return $this->session->get($id);
+        $tournamentParticipants = $tournament->getParticipants();
+        
+        foreach($tournamentParticipants as $participant)
+        {
+            if($participant->id === $participantId)
+            {
+                return $participant;
+            }
+        }
+
+        return null;
+    }
+
+    public function deleteParticipant(Tournament $tournament, string $participantId): void
+    {
+        $tournamentParticipants = $tournament->getParticipants();
+
+        foreach($tournamentParticipants as $key => $participant)
+        {
+            if($participant->id === $participantId)
+            {
+                unset($tournamentParticipants[$key]);
+            }
+        }
+
+        $tournament->participants = $tournamentParticipants;
+
+        $this->session->set($tournament->id, $tournament);
+        $this->session->save();
     }
 }

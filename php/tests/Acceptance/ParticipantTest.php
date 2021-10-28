@@ -115,4 +115,29 @@ class ParticipantTest extends ApiTestCase
         $response
     );
     }
+
+    public function testParticipantDeletion(): void
+    {
+        $client = static::createClient();
+        $tournamentId = $this->tournamentService->createTournament($client);
+
+        $client->request('POST', '/api/tournaments/'. $tournamentId .'/participants', [
+            'headers' => [
+                'Content-Type: application/json',
+                'Accept: application/json',
+            ],
+            'body' => json_encode($this->participant)
+        ]);
+        
+        $participant = $client->getResponse()->toArray();
+
+        $client->request('DELETE', '/api/tournaments/' . $tournamentId . '/participants/' . $participant['id'], [
+            'headers' => [
+                'Content-Type: application/json',
+                'Accept: application/json',
+            ]
+        ]);
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
+    }
 }
