@@ -32,10 +32,10 @@ class ParticipantController extends AbstractController
 
         $parametersAsArray = json_decode($request->getContent(), true);
 
-        if(!isset($parametersAsArray['name']) || !isset($parametersAsArray['elo']))
+        if(!isset($parametersAsArray['name']))
         {
             return $this->json([
-                "message" => "Deux paramètres sont requis : name & elo"
+                "message" => "Le paramètre 'name' est requis"
             ], Response::HTTP_BAD_REQUEST);
         }
 
