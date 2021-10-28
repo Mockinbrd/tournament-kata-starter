@@ -31,7 +31,7 @@ class TournamentController extends AbstractController
         $uuid = Uuid::v4();
         $tournament = new Tournament($uuid, $parametersAsArray["name"]);
 
-        $this->service->saveTournament($tournament);
+        $this->tournamentService->saveTournament($tournament);
 
         return $this->json([
             'id' => $uuid,
@@ -43,6 +43,6 @@ class TournamentController extends AbstractController
      */
     public function getTournament(string $id): Response
     {
-        return $this->json($this->service->getTournament($id));
+        return $this->json($this->tournamentService->getTournament($id));
     }
 }
