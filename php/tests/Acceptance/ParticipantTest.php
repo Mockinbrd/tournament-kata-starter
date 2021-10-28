@@ -2,37 +2,28 @@
 
 namespace App\Tests\Acceptance;
 
-use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
-use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\Client;
-use App\Controller\TournamentController;
+use App\Tests\TestService\TournamentTestService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\Client;
+use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
 
 
 class ParticipantTest extends ApiTestCase
 {
-    private function createTournament(Client $client): string
+    public TournamentTestService $tournamentService;
+
+    public function __construct()
     {
-        $client->request('POST', '/api/tournaments', [
-            'headers' => [
-                'Content-Type: application/json',
-                'Accept: application/json',
-            ],
-            'body' => json_encode(['name' => 'Tournament'])
-        ]);
-
-        $response = $client->getResponse()->toArray();
-
-        return $response['id'];
+        parent::__construct();
+        $this->tournamentService = new TournamentTestService();
     }
 
     public function testParticipantCreation(): void
     {
         $client = static::createClient();
 
-        $tournamentId = $this->createTournament($client);
-
-        $client->request('POST', '/api/tournaments/'. $tournamentId .'/participants', [
+        $client->request('POST', '/api/tournaments/'. $this->tournamentService->createTournament($client) .'/participants', [
             'headers' => [
                 'Content-Type: application/json',
                 'Accept: application/json',
@@ -69,7 +60,7 @@ class ParticipantTest extends ApiTestCase
     public function testParticipantCreationWithoutGoodParameters(): void
     {
         $client = static::createClient();
-        $tournamentId = $this->createTournament($client);
+        $tournamentId = $this->tournamentService->createTournament($client);
 
         $client->request('POST', '/api/tournaments/' . $tournamentId . '/participants', [
             'headers' => [
