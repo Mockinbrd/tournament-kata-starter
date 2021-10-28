@@ -4,14 +4,11 @@ namespace App\Model;
 
 class Tournament
 {
-    public string $id;
-    public string $name;
-    public array $participants;
-
-    public function __construct($id, $name, $participants = []) {
-        $this->id = $id;
-        $this->name = $name;
-        $this->participants = $participants;
+    public function __construct(
+        public string $id,
+        public string $name,
+        public array $participants = []
+    ) {
     }
 
     public function addParticipant(Participant $participant): self
@@ -24,5 +21,12 @@ class Tournament
     public function getParticipants(): array
     {
         return $this->participants;
+    }
+
+    public function setParticipants(array $participantsToSet): self
+    {
+        $this->participants = $participantsToSet;
+
+        return $this;
     }
 }

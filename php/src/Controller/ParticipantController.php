@@ -8,6 +8,8 @@ use Symfony\Component\Uid\Uuid;
 use App\Services\TournamentService;
 use Symfony\Component\HttpFoundation\Request;
 use App\Services\ParticipantTournamentService;
+use App\Validator\ParticipantValidator;
+use Exception;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,7 +19,8 @@ class ParticipantController extends AbstractController
     public function __construct(
         private TournamentService $tournamentService,
         private ParticipantTournamentService $participantTournamentService,
-        private ParticipantService $participantService
+        private ParticipantService $participantService,
+        private ParticipantValidator $participantValidator
     ) {
     }
 
@@ -26,16 +29,11 @@ class ParticipantController extends AbstractController
      */
     public function deleteParticipant(string $tournamentId, string $participantId): Response
     {
-        $tournament = $this->tournamentService->getTournament($tournamentId);
-
-        if (null == $tournament) {
-            throw $this->createNotFoundException("Le tournoi n'existe pas");
-        }
-
-        $participant = $this->participantService->getParticipant($tournament, $participantId);
-
-        if (null == $participant) {
-            throw $this->createNotFoundException("Le participant n'existe pas");
+        try {
+            $tournament = $this->tournamentService->getTournament($tournamentId);
+            $participant = $this->participantService->getParticipant($tournament, $participantId);
+        } catch (Exception $e) {
+            throw $e;
         }
 
         $this->participantService->deleteParticipant($tournament, $participant->id);
@@ -48,10 +46,10 @@ class ParticipantController extends AbstractController
      */
     public function getParticipantsOfTournament(string $tournamentId): Response
     {
-        $tournament = $this->tournamentService->getTournament($tournamentId);
-
-        if (null == $tournament) {
-            throw $this->createNotFoundException("Le tournoi n'existe pas");
+        try {
+            $tournament = $this->tournamentService->getTournament($tournamentId);
+        } catch (Exception $e) {
+            throw $e;
         }
 
         return $this->json($tournament->getParticipants());
@@ -63,20 +61,10 @@ class ParticipantController extends AbstractController
     public function createTournamentParticipant(string $tournamentId, Request $request): Response
     {
         $tournament = $this->tournamentService->getTournament($tournamentId);
-
-        if (null == $tournament) {
-            throw $this->createNotFoundException("Le tournoi n'existe pas");
-        }
-
         $parametersAsArray = json_decode($request->getContent(), true);
 
-        if(!isset($parametersAsArray['name']) || (isset($parametersAsArray['elo']) && !is_integer($parametersAsArray['elo'])))
-        {
-            return $this->json([
-                "message" => "Le nom 'name' (chaine de caractères non vide) ou l'elo (nombre entier) sont incorrects"
-            ], Response::HTTP_BAD_REQUEST);
-        }
-
+        $this->participantValidator->validate($parametersAsArray);
+        
         $uuid = Uuid::v4();
 
         $participant = new Participant($uuid, $parametersAsArray['name'], $parametersAsArray['elo']);

@@ -20,7 +20,6 @@ class ParticipantTournamentService
 
     public function saveParticipantOnTournament(Participant $participant, Tournament $tournament)
     {
-
         $tournament->addParticipant($participant);
 
         $this->session->set($tournament->id, $tournament);

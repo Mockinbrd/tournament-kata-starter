@@ -6,6 +6,7 @@ use App\Model\Tournament;
 use App\Model\Participant;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ParticipantService
 {
@@ -27,7 +28,7 @@ class ParticipantService
             }
         }
 
-        return null;
+        throw new NotFoundHttpException("Le participant n'existe pas");
     }
 
     public function deleteParticipant(Tournament $tournament, string $participantId): void
@@ -42,7 +43,7 @@ class ParticipantService
             }
         }
 
-        $tournament->participants = $tournamentParticipants;
+        $tournament->setParticipants($tournamentParticipants);
 
         $this->session->set($tournament->id, $tournament);
         $this->session->save();

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Model\Tournament;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class TournamentService
 {
@@ -16,7 +17,13 @@ class TournamentService
 
     public function getTournament(string $id): ?Tournament
     {
-        return $this->session->get($id);
+        $tournament = $this->session->get($id);
+
+        if (null === $tournament) {
+            throw new NotFoundHttpException("Le tournoi n'existe pas");
+        }
+        
+        return $tournament;
     }
 
     public function saveTournament(Tournament $tournament)
