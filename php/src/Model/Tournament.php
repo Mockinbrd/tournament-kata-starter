@@ -4,9 +4,13 @@ namespace App\Model;
 
 class Tournament
 {
+    public const TYPE_SINGLE_ELIMINATION = "SingleBracketElimination";
+    public const TYPES = [self::TYPE_SINGLE_ELIMINATION];
+
     public function __construct(
         public string $id,
         public string $name,
+        public ?string $type = null, // A QUAND LES ENUMS ICI HEIN... PHP 8.1 ASAP OR I WILL GO HARD
         public array $participants = []
     ) {
     }
@@ -29,4 +33,16 @@ class Tournament
 
         return $this;
     }
+
+    public function getType():string 
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type):self
+    {
+        $this->type = $type;
+        return $this;
+    }
+
 }

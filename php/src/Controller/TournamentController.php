@@ -2,14 +2,15 @@
 
 namespace App\Controller;
 
-use App\Model\Tournament;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Entity\Tournament;
+use Symfony\Component\Uid\Uuid;
+use App\Services\TournamentService;
+use App\Validator\TournamentValidator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Services\TournamentService;
-use App\Validator\TournamentValidator;
-use Symfony\Component\Uid\Uuid;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Uid\Ulid;
 
 class TournamentController extends AbstractController
 {
@@ -26,15 +27,12 @@ class TournamentController extends AbstractController
     {
         $parametersAsArray = json_decode($request->getContent(), true);
 
-        $this->tournamentValidator->validate($parametersAsArray);
+        $this->tournamentValidator->validate($parametersAsArray, false);
 
-        $uuid = Uuid::v4();
-        $tournament = new Tournament($uuid, $parametersAsArray["name"]);
-
-        $this->tournamentService->saveTournament($tournament);
+        $tournament = $this->tournamentService->createTournament($parametersAsArray);
 
         return $this->json([
-            'id' => $uuid,
+            'id' => (string) $tournament->getId(),
         ]);
     }
 
@@ -44,5 +42,19 @@ class TournamentController extends AbstractController
     public function getTournament(string $id): Response
     {
         return $this->json($this->tournamentService->getTournament($id));
+    }
+
+    /**
+     * @Route("/api/tournaments/{id}/phases", name="create_tournament_single_bracket_elimination", methods={"POST"})
+     */
+    public function createSingleBracketEliminationTournament(string $id, Request $request): Response
+    {
+        $tournament = $this->tournamentService->getTournament($id);
+
+        $parametersAsArray = json_decode($request->getContent(), true);
+
+        $this->tournamentValidator->validate($parametersAsArray);
+
+        return $this->json($this->tournamentService->updateTournament($tournament, $parametersAsArray),RESPONSE::HTTP_CREATED);
     }
 }

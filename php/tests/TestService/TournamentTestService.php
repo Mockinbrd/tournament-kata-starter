@@ -3,6 +3,7 @@
 namespace App\Tests\TestService;
 
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\Client;
+use App\Tests\Acceptance\TournamentTest;
 
 class TournamentTestService
 {
@@ -13,7 +14,7 @@ class TournamentTestService
                 'Content-Type: application/json',
                 'Accept: application/json',
             ],
-            'body' => json_encode(['name' => 'Tournament'])
+            'body' => json_encode(['name' => TournamentTest::TOURNAMENT_NAME])
         ]);
 
         $response = $client->getResponse()->toArray();

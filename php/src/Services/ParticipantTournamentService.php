@@ -2,8 +2,9 @@
 
 namespace App\Services;
 
-use App\Model\Tournament;
-use App\Model\Participant;
+use App\Entity\Tournament;
+use App\Entity\Participant;
+use App\Repository\TournamentRepository;
 use App\Services\ParticipantService;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -13,16 +14,21 @@ class ParticipantTournamentService
     public function __construct(
         private ParticipantService $participantService,
         private TournamentService $tournamentService,
-        RequestStack $requestStack
-    ) {
-        $this->session = $requestStack->getSession();
+        private TournamentRepository $tournamentRepository
+    ) 
+    {}
+
+    public function addParticipantOnTournament(Tournament $tournament, array $params): Participant
+    {
+        $participant = $this->participantService->createParticipant($params);
+
+        $this->tournamentService->addParticipant($tournament, $participant);
+
+        return $participant;
     }
 
-    public function saveParticipantOnTournament(Participant $participant, Tournament $tournament)
+    public function deleteParticipantFromTournament(Tournament $tournament, Participant $participant): void
     {
-        $tournament->addParticipant($participant);
-
-        $this->session->set($tournament->id, $tournament);
-        $this->session->save();
+        $this->tournamentRepository->removeParticipant($tournament, $participant);
     }
 }

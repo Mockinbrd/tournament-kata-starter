@@ -2,16 +2,18 @@
 
 namespace App\Controller;
 
-use App\Model\Participant;
-use App\Services\ParticipantService;
+use Exception;
 use Symfony\Component\Uid\Uuid;
+use Symfony\Component\Uid\UuidV4;
 use App\Services\TournamentService;
+use App\Services\ParticipantService;
+use App\Validator\ParticipantValidator;
 use Symfony\Component\HttpFoundation\Request;
 use App\Services\ParticipantTournamentService;
-use App\Validator\ParticipantValidator;
-use Exception;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class ParticipantController extends AbstractController
@@ -20,7 +22,8 @@ class ParticipantController extends AbstractController
         private TournamentService $tournamentService,
         private ParticipantTournamentService $participantTournamentService,
         private ParticipantService $participantService,
-        private ParticipantValidator $participantValidator
+        private ParticipantValidator $participantValidator,
+        private NormalizerInterface $normalizer
     ) {
     }
 
@@ -32,7 +35,7 @@ class ParticipantController extends AbstractController
         $tournament = $this->tournamentService->getTournament($tournamentId);
         $participant = $this->participantService->getParticipant($tournament, $participantId);
 
-        $this->participantService->deleteParticipant($tournament, $participant->id);
+        $this->participantTournamentService->deleteParticipantFromTournament($tournament, $participant);
 
         return $this->json(null, Response::HTTP_NO_CONTENT);
     }
@@ -43,8 +46,9 @@ class ParticipantController extends AbstractController
     public function getParticipantsOfTournament(string $tournamentId): Response
     {
         $tournament = $this->tournamentService->getTournament($tournamentId);
+        /* dd($tournament->getParticipants()->toArray()); */
 
-        return $this->json($tournament->getParticipants());
+        return $this->json($this->normalizer->normalize($tournament->getParticipants()->toArray(), 'json', ['groups' => ['participant:read']]));
     }
 
     /**
@@ -57,14 +61,10 @@ class ParticipantController extends AbstractController
 
         $this->participantValidator->validate($parametersAsArray);
 
-        $uuid = Uuid::v4();
-
-        $participant = new Participant($uuid, $parametersAsArray['name'], $parametersAsArray['elo']);
-
-        $this->participantTournamentService->saveParticipantOnTournament($participant, $tournament);
+        $participant = $this->participantTournamentService->addParticipantOnTournament($tournament, $parametersAsArray);
 
         return $this->json([
-            "id" => $participant->id
+            "id" => (string) $participant->getId()
         ]);
     }
 }

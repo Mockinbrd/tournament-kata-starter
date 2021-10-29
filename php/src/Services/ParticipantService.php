@@ -2,8 +2,11 @@
 
 namespace App\Services;
 
-use App\Model\Tournament;
-use App\Model\Participant;
+
+use App\Entity\Tournament;
+use App\Entity\Participant;
+use App\Repository\ParticipantRepository;
+use App\Repository\TournamentRepository;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -11,41 +14,23 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class ParticipantService
 {
     public function __construct(
-        private RequestStack $requestStack
+        private ParticipantRepository $participantRepository
     ) {
-        $this->session = $requestStack->getSession();
     }
 
-    public function getParticipant(Tournament $tournament, string $participantId): ?Participant
+    public function createParticipant(array $parameters): Participant
     {
-        $tournamentParticipants = $tournament->getParticipants();
-        
-        foreach($tournamentParticipants as $participant)
-        {
-            if($participant->id === $participantId)
-            {
-                return $participant;
-            }
-        }
-
-        throw new NotFoundHttpException("Le participant n'existe pas");
+        return $this->participantRepository->create($parameters);
     }
 
-    public function deleteParticipant(Tournament $tournament, string $participantId): void
+    public function getParticipant(Tournament $tournament, string $participantId): Participant
     {
-        $tournamentParticipants = $tournament->getParticipants();
+        $participant = $this->participantRepository->findOneByTournament($tournament, $participantId);
 
-        foreach($tournamentParticipants as $key => $participant)
-        {
-            if($participant->id === $participantId)
-            {
-                unset($tournamentParticipants[$key]);
-            }
+        if (null === $participant) {
+            throw new NotFoundHttpException("Le participant n'existe pas");
         }
 
-        $tournament->setParticipants($tournamentParticipants);
-
-        $this->session->set($tournament->id, $tournament);
-        $this->session->save();
+        return $participant;
     }
 }

@@ -2,14 +2,15 @@
 
 namespace App\Tests\Acceptance;
 
-use App\Tests\TestService\TournamentTestService;
+use App\Tests\WebTestCaseWithDatabase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use App\Tests\TestService\TournamentTestService;
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\Client;
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
+use Symfony\Component\Uid\Ulid;
 
-
-class ParticipantTest extends ApiTestCase
+class ParticipantTest extends WebTestCaseWithDatabase
 {
     public TournamentTestService $tournamentService;
 
@@ -28,9 +29,7 @@ class ParticipantTest extends ApiTestCase
 
     public function testParticipantCreation(): void
     {
-        $client = static::createClient();
-
-        $client->request('POST', '/api/tournaments/' . $this->tournamentService->createTournament($client) . '/participants', [
+        $this->client->request('POST', '/api/tournaments/' . $this->tournamentService->createTournament($this->client) . '/participants', [
             'headers' => [
                 'Content-Type: application/json',
                 'Accept: application/json',
@@ -38,16 +37,14 @@ class ParticipantTest extends ApiTestCase
             'body' => json_encode($this->participant)
         ]);
         $this->assertResponseIsSuccessful();
-        $response = $client->getResponse()->toArray();
+        $response = $this->client->getResponse()->toArray();
 
         $this->assertIsString($response["id"]);
     }
 
-    public function testTournamentDoesNotExist(): void
+    public function testCreateParticipantButTournamentDoesNotExist(): void
     {
-        $client = static::createClient();
-
-        $client->request('POST', '/api/tournaments/' . 10 . '/participants', [
+        $this->client->request('POST', '/api/tournaments/' . (string) new Ulid() . '/participants', [
             'headers' => [
                 'Content-Type: application/json',
                 'Accept: application/json',
@@ -60,10 +57,9 @@ class ParticipantTest extends ApiTestCase
 
     public function testParticipantCreationWithoutGoodParameters(): void
     {
-        $client = static::createClient();
-        $tournamentId = $this->tournamentService->createTournament($client);
+        $tournamentId = $this->tournamentService->createTournament($this->client);
 
-        $client->request('POST', '/api/tournaments/' . $tournamentId . '/participants', [
+        $this->client->request('POST', '/api/tournaments/' . $tournamentId . '/participants', [
             'headers' => [
                 'Content-Type: application/json',
                 'Accept: application/json',
@@ -80,10 +76,9 @@ class ParticipantTest extends ApiTestCase
 
     public function testListParticipantOfTournament(): void
     {
-        $client = static::createClient();
-        $tournamentId = $this->tournamentService->createTournament($client);
+        $tournamentId = $this->tournamentService->createTournament($this->client);
 
-        $client->request('POST', '/api/tournaments/' . $tournamentId . '/participants', [
+        $this->client->request('POST', '/api/tournaments/' . $tournamentId . '/participants', [
             'headers' => [
                 'Content-Type: application/json',
                 'Accept: application/json',
@@ -92,15 +87,14 @@ class ParticipantTest extends ApiTestCase
         ]);
 
         $this->assertResponseIsSuccessful();
-        $participant = $client->getResponse()->toArray();
+        $participant = $this->client->getResponse()->toArray();
 
-        $client->request('GET', '/api/tournaments/' . $tournamentId . '/participants', [
+        $this->client->request('GET', '/api/tournaments/' . $tournamentId . '/participants', [
             'headers' => [
                 'Content-Type: application/json',
                 'Accept: application/json',
             ]
         ]);
-
         $this->assertJsonContains(
             [
                 [
@@ -114,10 +108,9 @@ class ParticipantTest extends ApiTestCase
 
     public function testParticipantDeletion(): void
     {
-        $client = static::createClient();
-        $tournamentId = $this->tournamentService->createTournament($client);
+        $tournamentId = $this->tournamentService->createTournament($this->client);
 
-        $client->request('POST', '/api/tournaments/' . $tournamentId . '/participants', [
+        $this->client->request('POST', '/api/tournaments/' . $tournamentId . '/participants', [
             'headers' => [
                 'Content-Type: application/json',
                 'Accept: application/json',
@@ -125,9 +118,9 @@ class ParticipantTest extends ApiTestCase
             'body' => json_encode($this->participant)
         ]);
 
-        $participant = $client->getResponse()->toArray();
+        $participant = $this->client->getResponse()->toArray();
 
-        $client->request('DELETE', '/api/tournaments/' . $tournamentId . '/participants/' . $participant['id'], [
+        $this->client->request('DELETE', '/api/tournaments/' . $tournamentId . '/participants/' . $participant['id'], [
             'headers' => [
                 'Content-Type: application/json',
                 'Accept: application/json',
