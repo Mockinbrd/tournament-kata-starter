@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Validator;
+namespace App\Controller\Validator;
 
 use App\Model\Tournament;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;

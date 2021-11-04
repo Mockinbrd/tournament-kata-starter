@@ -4,10 +4,8 @@ namespace App\Services;
 
 use App\Entity\Tournament;
 use App\Entity\Participant;
-use App\Repository\TournamentRepository;
 use App\Services\ParticipantService;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use App\Repository\TournamentRepository;
 
 class ParticipantTournamentService
 {
@@ -15,8 +13,8 @@ class ParticipantTournamentService
         private ParticipantService $participantService,
         private TournamentService $tournamentService,
         private TournamentRepository $tournamentRepository
-    ) 
-    {}
+    ) {
+    }
 
     public function addParticipantOnTournament(Tournament $tournament, array $params): Participant
     {

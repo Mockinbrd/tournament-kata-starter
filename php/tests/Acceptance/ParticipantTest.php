@@ -9,6 +9,7 @@ use App\Tests\TestService\TournamentTestService;
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\Client;
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
 use Symfony\Component\Uid\Ulid;
+use App\DataFixtures\TournamentFixtures;
 
 class ParticipantTest extends WebTestCaseWithDatabase
 {
@@ -25,6 +26,7 @@ class ParticipantTest extends WebTestCaseWithDatabase
             'name' => self::PARTICIPANT_NAME,
             'elo' => self::PARTICIPANT_ELO
         ];
+        $this->addFixture(TournamentFixtures::class);
     }
 
     public function testParticipantCreation(): void

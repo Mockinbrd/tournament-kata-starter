@@ -4,10 +4,8 @@ namespace App\Services;
 
 use App\Entity\Tournament;
 use App\Entity\Participant;
+use App\Exception\Tournament\TournamentNotFoundException;
 use App\Repository\TournamentRepository;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class TournamentService
 {
@@ -16,12 +14,12 @@ class TournamentService
     ) {
     }
 
-    public function getTournament(string $id): Tournament
+    public function getTournament(string $id): ?Tournament
     {
-        $tournament = $this->tournamentRepository->find($id);
+        $tournament =  $this->tournamentRepository->find($id);
 
-        if (null === $tournament) {
-            throw new NotFoundHttpException("Le tournoi n'existe pas");
+        if (!$tournament) {
+            throw new TournamentNotFoundException();
         }
 
         return $tournament;

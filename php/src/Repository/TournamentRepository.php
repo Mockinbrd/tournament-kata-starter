@@ -25,23 +25,22 @@ class TournamentRepository extends ServiceEntityRepository
         $tournament = new Tournament();
         $tournament->setName($parameters['name']);
 
-    
+
         $this->_em->persist($tournament);
         $this->_em->flush();
-
         return $tournament;
     }
 
-    public function update(Tournament $tournament,array $parameters): Tournament
+    public function update(Tournament $tournament, array $parameters): Tournament
     {
-        foreach ($parameters as $key => $param){
-            $method = 'set'.ucfirst($key);
+        foreach ($parameters as $key => $param) {
+            $method = 'set' . ucfirst($key);
 
-            if(method_exists($tournament,$method)){
+            if (method_exists($tournament, $method)) {
                 $tournament->$method($param);
             }
         }
-        
+
         $this->_em->flush();
 
         return $tournament;
@@ -55,7 +54,7 @@ class TournamentRepository extends ServiceEntityRepository
         return $tournament;
     }
 
-    public function removeParticipant(Tournament $tournament, Participant $participant) : void
+    public function removeParticipant(Tournament $tournament, Participant $participant): void
     {
         $tournament->removeParticipant($participant);
 

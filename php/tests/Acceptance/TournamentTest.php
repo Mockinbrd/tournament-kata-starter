@@ -5,6 +5,7 @@ namespace App\Tests\Acceptance;
 use App\Tests\WebTestCaseWithDatabase;
 use App\Tests\TestService\TournamentTestService;
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
+use App\DataFixtures\TournamentFixtures;
 use Symfony\Component\Uid\Ulid;
 
 class TournamentTest extends WebTestCaseWithDatabase
@@ -18,6 +19,7 @@ class TournamentTest extends WebTestCaseWithDatabase
     {
         parent::setUp();
         $this->tournamentService = new TournamentTestService();
+        $this->addFixture(TournamentFixtures::class);
     }
 
     public function testTournamentCreation(): void
@@ -52,7 +54,7 @@ class TournamentTest extends WebTestCaseWithDatabase
         $this->assertIsString($response["id"]);
 
         $this->client->request('GET', '/api/tournaments/' . $response["id"]);
-        
+
         $this->assertResponseIsSuccessful();
         $response = $this->client->getResponse()->toArray();
         $this->assertEquals(self::TOURNAMENT_NAME, $response["name"]);
@@ -70,7 +72,7 @@ class TournamentTest extends WebTestCaseWithDatabase
         $tournamentId = $this->tournamentService->createTournament($this->client);
 
         $this->client->request('GET', '/api/tournaments/' . $tournamentId);
-    
+
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains(['participants' => []]);
     }
@@ -87,4 +89,4 @@ class TournamentTest extends WebTestCaseWithDatabase
         ]);
         $this->assertResponseIsSuccessful();
     }
-} 
+}

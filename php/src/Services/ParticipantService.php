@@ -2,19 +2,16 @@
 
 namespace App\Services;
 
-
 use App\Entity\Tournament;
 use App\Entity\Participant;
+use App\Exception\Participant\ParticipantNotFoundException;
 use App\Repository\ParticipantRepository;
-use App\Repository\TournamentRepository;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ParticipantService
 {
     public function __construct(
-        private ParticipantRepository $participantRepository
+        private ParticipantRepository $participantRepository,
+        private TournamentService $tournamentService
     ) {
     }
 
@@ -27,8 +24,8 @@ class ParticipantService
     {
         $participant = $this->participantRepository->findOneByTournament($tournament, $participantId);
 
-        if (null === $participant) {
-            throw new NotFoundHttpException("Le participant n'existe pas");
+        if (!$participant) {
+            throw new ParticipantNotFoundException();
         }
 
         return $participant;
