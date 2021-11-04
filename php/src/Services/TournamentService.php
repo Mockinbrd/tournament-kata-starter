@@ -1,22 +1,42 @@
 <?php
+
 namespace App\Services;
 
-use App\Model\Tournament;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use App\Entity\Tournament;
+use App\Entity\Participant;
+use App\Exception\Tournament\TournamentNotFoundException;
+use App\Repository\TournamentRepository;
 
-class TournamentService {
-    private SessionInterface $session;
-
-    public function __construct(SessionInterface $session) {
-        $this->session = $session;
+class TournamentService
+{
+    public function __construct(
+        private TournamentRepository $tournamentRepository
+    ) {
     }
 
-    public function getTournament(string $id) : ?Tournament {
-        return $this->session->get($id);
+    public function getTournament(string $id): ?Tournament
+    {
+        $tournament =  $this->tournamentRepository->find($id);
+
+        if (!$tournament) {
+            throw new TournamentNotFoundException();
+        }
+
+        return $tournament;
     }
 
-    public function saveTournament(Tournament $tournament) {
-        $this->session->set($tournament->id, $tournament);
-        $this->session->save();
+    public function createTournament(array $parameters): Tournament
+    {
+        return $this->tournamentRepository->create($parameters);
+    }
+
+    public function updateTournament(Tournament $tournament, array $parameters): Tournament
+    {
+        return $this->tournamentRepository->update($tournament, $parameters);
+    }
+
+    public function addParticipant(Tournament $tournament, Participant $participant): Tournament
+    {
+        return $this->tournamentRepository->addParticipant($tournament, $participant);
     }
 }
