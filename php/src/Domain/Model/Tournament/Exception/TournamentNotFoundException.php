@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Exception\Tournament;
+namespace App\Domain\Model\Tournament\Exception;
 
 use Exception;
 

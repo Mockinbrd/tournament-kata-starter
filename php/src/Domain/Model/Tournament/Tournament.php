@@ -1,20 +1,25 @@
 <?php
 
-namespace App\Entity;
+namespace App\Domain\Model\Tournament;
 
+use App\Domain\Model\Participant\Participant;
 use Symfony\Component\Uid\Ulid;
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\TournamentRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Bridge\Doctrine\IdGenerator\UuidV4Generator;
 
 /**
  * @ORM\Entity(repositoryClass=TournamentRepository::class)
  */
 class Tournament
 {
+    public const TYPE_SINGLE_BRACKET = 'SingleBracketElimination';
+
+    public const TYPES = [
+        self::TYPE_SINGLE_BRACKET
+    ];
+
     /**
      * @ORM\Id
      * @ORM\Column(type="ulid", unique=true)
@@ -98,7 +103,4 @@ class Tournament
 
         return $this;
     }
-
-    
-
 }

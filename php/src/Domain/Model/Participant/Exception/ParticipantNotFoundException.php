@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Exception\Participant;
+namespace App\Domain\Model\Participant\Exception;
 
 use Exception;
 

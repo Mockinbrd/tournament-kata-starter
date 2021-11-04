@@ -1,15 +1,13 @@
 <?php
 
-namespace App\Entity;
+namespace App\Domain\Model\Participant;
 
+use App\Domain\Model\Tournament\Tournament;
 use Symfony\Component\Uid\Ulid;
-use Symfony\Component\Uid\Uuid;
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\ParticipantRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Bridge\Doctrine\IdGenerator\UuidV4Generator;
 
 /**
  * @ORM\Entity(repositoryClass=ParticipantRepository::class)

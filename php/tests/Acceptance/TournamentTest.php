@@ -18,7 +18,7 @@ class TournamentTest extends WebTestCaseWithDatabase
     public function setUp(): void
     {
         parent::setUp();
-        $this->tournamentService = new TournamentTestService();
+        /* $this->tournamentService = new TournamentTestService(); */
         $this->addFixture(TournamentFixtures::class);
     }
 
@@ -38,7 +38,7 @@ class TournamentTest extends WebTestCaseWithDatabase
         $this->assertIsString($response["id"]);
     }
 
-    public function testTournamentCreationShouldEnableToRetrieveAfter(): void
+    /* public function testTournamentCreationShouldEnableToRetrieveAfter(): void
     {
         $this->client->request('POST', '/api/tournaments', [
             'headers' => [
@@ -88,5 +88,5 @@ class TournamentTest extends WebTestCaseWithDatabase
             'body' => json_encode(['type' => self::TOURNAMENT_TYPE_SINGLE_BRACKET_ELIMINATION])
         ]);
         $this->assertResponseIsSuccessful();
-    }
+    } */
 }
